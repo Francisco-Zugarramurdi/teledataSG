@@ -1,0 +1,4 @@
+Triggers de bloqueo IP:
+
+Very-Risky-Destination-Detection-By-Endpoint
+Default-Compromised Host-Detection-IOC-By-Endpoint
