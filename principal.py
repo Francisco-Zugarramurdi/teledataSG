@@ -3,12 +3,12 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from email.message import EmailMessage
 import vt
-import os
+# import os
 import re 
-import quickstart
-import base64
-import email
-import time
+# import quickstart
+# import base64
+# import email
+# import time
 import asyncio
 
 #Mail Teledata: sgteledata@gmail.com BORRAR     
