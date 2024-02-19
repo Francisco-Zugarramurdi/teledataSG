@@ -14,7 +14,7 @@ async def prueba():
     nest_asyncio.apply()
     errors = {}
     
-    if request.args.get('api_key') != "2222":
+    if request.args.get('api_key') != "T2Ed4pnvP5$Z5j87#T&m7RqV8qkA":
         errors["api_key"] = "WRONG API KEY"
     if not request.args.get("api_key"):
         errors['api_key'] = "API KEY REQUIRED"
