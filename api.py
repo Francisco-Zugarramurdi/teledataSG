@@ -11,11 +11,14 @@ app = Flask(__name__)
 
 def worked_ticket_response(ticket_id,priority,result):
     url = "https://soporte.teledata.com.uy/webservices/service-tickets.php?operation=automatic-sg-ticket/"
-    data = {
-        "authkey":"u73TkvWFFAKZnUcB9PAgjxhaf3m9ffJh",
+    json_data = {
         "ticket_id":ticket_id,
         "priorty":priority,
         "attention_log":result
+    }
+    data = {
+        "authkey":"u73TkvWFFAKZnUcB9PAgjxhaf3m9ffJh",
+        "json_data":json_data
     }
     requests.post(url,data)
     
