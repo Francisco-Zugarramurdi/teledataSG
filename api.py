@@ -54,7 +54,7 @@ async def prueba():
     }
     result = await asyncio.gather(principal.manage_email(logs))
 
-    # worked_ticket_response(ticketId,priority,result)
+    worked_ticket_response(ticketId,priority,result)
     result = json.dumps(result)
     return result
 
