@@ -32,15 +32,15 @@ async def prueba():
     nest_asyncio.apply()
     errors = {}
 
-    if request.args.get('api_key') != "T2Ed4pnvP5$Z5j87#T&m7RqV8qkA":
+    if request.form.get('api_key') != "T2Ed4pnvP5$Z5j87#T&m7RqV8qkA":
         errors["api_key"] = "WRONG API KEY"
-    if not request.args.get("api_key"):
+    if not request.form.get("api_key"):
         errors['api_key'] = "API KEY REQUIRED"
-    if not request.args.get("ticket_id"):
+    if not request.form.get("ticket_id"):
         errors['ticket_id'] = "TICKED ID REQUIRED"
-    if not request.args.get("priority"):
+    if not request.form.get("priority"):
         errors['priority'] = "ticket priority REQUIRED"
-    if not request.args.get("logs"):
+    if not request.form.get("logs"):
         errors['logs'] = "TICKET LOGS REQUIRED"
     
     print(request.method)
@@ -49,10 +49,10 @@ async def prueba():
         return errors
    
     
-    apiKey = request.args.get("api_key")
-    ticketId = request.args.get("ticket_id")
-    priority = request.args.get("priority")
-    logs = request.args.get("logs")
+    apiKey = request.form.get("api_key")
+    ticketId = request.form.get("ticket_id")
+    priority = request.form.get("priority")
+    logs = request.form.get("logs")
     
     
     result = await asyncio.gather(principal.manage_email(logs))
