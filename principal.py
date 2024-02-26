@@ -10,6 +10,8 @@ import re
 # import email
 # import time
 import asyncio
+import time
+
 
 #Mail Teledata: sgteledata@gmail.com BORRAR     
 #Contra mail teledata: !sttdt3l3d4t4*  BORRAR
@@ -148,6 +150,9 @@ async def api_vt(urls):
             result += ""
          
     client.close()  
+    f = open('Resultados.txt','a')
+    log = "Result " + result + "Time " + str(time.localtime()) + "\n"
+    f.write(log)
     return result
 
 async def manage_email(email):
