@@ -47,7 +47,7 @@ async def prueba():
     
     if errors != {}:
         f = open('Errors.txt','a')
-        log = "ERROR " + errors + "Time " + str(time.localtime()) + "\n"
+        log = "ERROR " + str(errors) + "Time " + str(time.localtime()) + "\n"
         f.write(log)
         return errors
    
