@@ -9,6 +9,20 @@ import nest_asyncio
 
 
 app = Flask(__name__)
+async def get_private_logs(ticket_id):
+    url = "https://soporte.teledata.com.uy/webservices/service-tickets.php"
+    json_data = {
+        'ticket_id':ticket_id
+    }
+    json_data = json.dumps(json_data)
+    data = {
+        'operation':'get-ticket',
+        'authkey':'u73TkvWFFAKZnUcB9PAgjxhaf3m9ffJh',
+        'json_data':json_data
+    }
+
+    return requests.post(url=url,data=data,verify=True).json()
+    
 
 async def worked_ticket_response(ticket_id,priority,result):
     url = "https://soporte.teledata.com.uy/webservices/service-tickets.php"
@@ -38,24 +52,35 @@ async def prueba():
         errors['api_key'] = "API KEY REQUIRED"
     if not request.form.get("ticket_id"):
         errors['ticket_id'] = "TICKED ID REQUIRED"
-    if not request.form.get("priority"):
-        errors['priority'] = "ticket priority REQUIRED"
-    if not request.form.get("logs"):
-        errors['logs'] = "TICKET LOGS REQUIRED"
     
-    print(request.method)
+    
+    # if not request.form.get("priority"):
+    #     errors['priority'] = "ticket priority REQUIRED"
+    # if not request.form.get("logs"):
+    #     errors['logs'] = "TICKET LOGS REQUIRED"
+    
+    ticketId = request.form.get("ticket_id")
+    response = await get_private_logs(ticketId)
+    priority = str(response['data']['priority'])
+    
+    logs = str(response['data']['private_log_text'])
+    if not logs:
+        errors['logs'] = "NO LOGS IN TICKET"
+    
+    apiKey = request.form.get("api_key")
+    
     
     if errors != {}:
         f = open('Errors.txt','a')
         log = "ERROR " + str(errors) + "Time " + str(time.localtime()) + "\n"
         f.write(log)
         return errors
-   
     
-    apiKey = request.form.get("api_key")
-    ticketId = request.form.get("ticket_id")
-    priority = request.form.get("priority")
-    logs = request.form.get("logs")
+    
+    print(response)
+    
+    print(priority)
+    print(logs)
     
     
     result = await asyncio.gather(principal.manage_email(logs))
