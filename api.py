@@ -31,7 +31,7 @@ async def worked_ticket_response(ticket_id,priority,result):
 async def prueba():
     nest_asyncio.apply()
     errors = {}
-
+    print(request.form.get('form-data'))
     if request.form.get('api_key') != "T2Ed4pnvP5$Z5j87#T&m7RqV8qkA":
         errors["api_key"] = "WRONG API KEY"
     if not request.form.get("api_key"):
@@ -46,6 +46,9 @@ async def prueba():
     print(request.method)
     
     if errors != {}:
+        f = open('Errors.txt','a')
+        log = "ERROR " + errors + "Time " + str(time.localtime()) + "\n"
+        f.write(log)
         return errors
    
     
