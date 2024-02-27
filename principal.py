@@ -137,17 +137,17 @@ async def api_vt(urls):
         try:
             url = client.get_object("/urls/{}",url_id) 
             if(url.last_analysis_stats.get("malicious") >= 1):
-                result += ("||" + x)
-                result += " ||Maliciosa"
-                result += ""
+                result += "-" + x
+                result += "-Maliciosa"
+                result += '     '
             else:
-                result += ("||"+x)
-                result += " ||No maliciosa"
-                result += ""
+                result += "-" + x
+                result += "-No maliciosa"
+                result += "     "
         except: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
-            result += ("||"+x)
-            result += " ||Sin catalogar"  
-            result += ""
+            result += "-" + x
+            result += " -Sin catalogar"  
+            result += "     "
          
     client.close()  
     f = open('Resultados.txt','a')
