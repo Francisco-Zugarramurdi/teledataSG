@@ -138,16 +138,16 @@ async def api_vt(urls):
             url = client.get_object("/urls/{}",url_id) 
             if(url.last_analysis_stats.get("malicious") >= 1):
                 result += "-" + x
-                result += "-Maliciosa"
-                result += '     '
+                result += "-<b>Maliciosa</b>"
+                result += '<br>'
             else:
                 result += "-" + x
                 result += "-No maliciosa"
-                result += "     "
+                result += "<br>"
         except: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
             result += "-" + x
             result += " -Sin catalogar"  
-            result += "     "
+            result += "<br>"
          
     client.close()  
     f = open('Resultados.txt','a')
@@ -163,7 +163,7 @@ async def manage_email(email):
         result = await asyncio.gather(api_vt(urls))
         return result
     # send_message(result,"seguridadgestionadatd@gmail.com",email[1],email[2])
-    return("")
+    return("not able to analyze ticket")
 
 #Potencialmente se puede usar la API de shodan para tambien Gestionar los tickets de login (Pero me parece que hay que finiquitar esto bien antes)
 #Potencialmente se puede agregar un workaround que utilice varias API_KEYS de VT en caso que no se pueda pagar la API Premiumn (No se ni proponer esto)
