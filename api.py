@@ -80,9 +80,9 @@ async def prueba():
     
     result = await asyncio.gather(principal.manage_email(logs))
     print(result)
-    responseResult = await worked_ticket_response(ticketId,priority,result)
-    print(responseResult)
-    print("AA")
+    if(result != ""):
+        responseResult = await worked_ticket_response(ticketId,priority,result)
+        print(responseResult)
     result = json.dumps(result)
     return result
 

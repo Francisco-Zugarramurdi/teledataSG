@@ -31,7 +31,7 @@ regexSender = "\<(.*?)\>"
 def is_url_log(msg):
     result = re.findall(regexTrigger,msg)
     if (result == []):
-        result = re.findall(regexTrigger2,msg)
+        result += re.findall(regexTrigger2,msg)
     if (result == []):  
         return False
     return True
@@ -157,12 +157,13 @@ async def api_vt(urls):
 
 async def manage_email(email):
     # return "MALA"
-    urls = get_urls(email)
-    urls = trunk_duplicates(urls)
-    result = await asyncio.gather(api_vt(urls))
-    return result
+    if(is_url_log(email)):
+        urls = get_urls(email)
+        urls = trunk_duplicates(urls)
+        result = await asyncio.gather(api_vt(urls))
+        return result
     # send_message(result,"seguridadgestionadatd@gmail.com",email[1],email[2])
-    return(result)
+    return("")
 
 #Potencialmente se puede usar la API de shodan para tambien Gestionar los tickets de login (Pero me parece que hay que finiquitar esto bien antes)
 #Potencialmente se puede agregar un workaround que utilice varias API_KEYS de VT en caso que no se pueda pagar la API Premiumn (No se ni proponer esto)
