@@ -18,7 +18,7 @@ import time
 #Me preocupa el hecho de en que formato me van a llegar los logs y como va a hacer el smart para identifcarlos...
 fVariables = open("variables.json","r")
 variables = eval(fVariables.read())
-
+apiKey = variables['api_key2']
 #REGEXs:
 regex = """http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"""
 regex2 = """qname\s*(\S+)"""
@@ -27,6 +27,14 @@ regexTrigger = "Very-Risky-Destination-Detection-By-Endpoint*"
 regexTrigger2 = "Host-Detection-IOC-By-Endpoint*"
 regexLogId = "Log ID\s*(\S+)"
 regexSender = "\<(.*?)\>"
+
+def api_quota_exceeded():
+    if(apiKey == variables['api_key']):
+        apiKey = variables['api_key2']
+    else: 
+        if(apiKey == variables['api_key2']):
+            apiKey = variables['api_key']
+
 
 def is_url_log(msg):
     result = re.findall(regexTrigger,msg)
@@ -144,10 +152,20 @@ async def api_vt(urls):
                 result += "-" + x
                 result += "-No maliciosa"
                 result += "<br>"
-        except: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
-            result += "-" + x
-            result += " -Sin catalogar"  
-            result += "<br>"
+        except Exception as e: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
+            a , b = e.args 
+            if(a!="QuotaExceededError"):
+                result += "-" + x
+                result += " -Sin catalogar"  
+                result += "<br>"
+            else:
+                result += "-" + x
+                result += "-<b> API Quota Exceeded-</b>"
+                result += "<br>"
+ 
+
+            
+        
          
     client.close()  
     f = open('Resultados.txt','a')
