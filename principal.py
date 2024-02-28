@@ -137,7 +137,7 @@ def get_urls (txt):
 
 
 async def api_vt(urls):  
-    client = vt.Client(variables['api_key']) 
+    client = vt.Client(apiKey) 
     print("Analyzing urls")
     result = "" 
     for x in urls:
@@ -147,22 +147,27 @@ async def api_vt(urls):
             if(url.last_analysis_stats.get("malicious") >= 1):
                 result += "-" + x
                 result += "-<b>Maliciosa</b>"
+                result += url.categories[list(url.categories.keys())[0]]
                 result += '<br>'
             else:
                 result += "-" + x
                 result += "-No maliciosa"
                 result += "<br>"
         except Exception as e: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
-            a , b = e.args 
-            if(a!="QuotaExceededError"):
-                result += "-" + x
-                result += " -Sin catalogar"  
-                result += "<br>"
-            else:
-                result += "-" + x
-                result += "-<b> API Quota Exceeded-</b>"
-                result += "<br>"
- 
+            try:
+                a , b = e.args 
+                if(a!="QuotaExceededError"):
+                    result += "-" + x
+                    result += " -Sin catalogar"  
+                    result += "<br>"
+                else:
+                    result += "-" + x
+                    result += "-<b> API Quota Exceeded-</b>"
+                    result += "<br>"
+            except:
+                print("")
+                    
+            
 
             
         
