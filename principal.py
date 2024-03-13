@@ -18,7 +18,7 @@ import time
 #Me preocupa el hecho de en que formato me van a llegar los logs y como va a hacer el smart para identifcarlos...
 fVariables = open("variables.json","r")
 variables = eval(fVariables.read())
-apiKey = variables['api_key2']
+apiKey = variables['api_key']
 #REGEXs:
 regex = """http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"""
 regex2 = """qname\s*(\S+)"""
@@ -27,6 +27,28 @@ regexTrigger = "Very-Risky-Destination-Detection-By-Endpoint*"
 regexTrigger2 = "Host-Detection-IOC-By-Endpoint*"
 regexLogId = "Log ID\s*(\S+)"
 regexSender = "\<(.*?)\>"
+logRegex = r'\bDevice\b(?! Name)(?! ID)(?! Type)'
+actionRegex = 'Action	\s*(\S+)'
+
+def get_logs(allLogs):
+    result = re.finditer(logRegex,allLogs)
+    indices = [m.start(0) for m in result]
+    logs = []
+    print ("there are " + str(len(indices)) + "logs")
+    for i in range(0,len(indices),1):
+        if(i!= 0):
+            log = allLogs[indices[i-1]:indices[i]]
+            logs.append(log)
+        if(i == len(indices)):
+            log = allLogs[indices[i]:len(allLogs)]
+            logs.append(log)
+    print("ALL LOGS")
+    for x in logs:
+        print("LOG")
+        print(x)
+        print("END LOG")
+    return logs
+
 
 def api_quota_exceeded():
     if(apiKey == variables['api_key']):
@@ -53,6 +75,7 @@ def trunk_duplicates(list):
 
 def get_urls (txt):  
     print("Getting URL's from logs")
+    print(txt)
     result = re.findall(regex,txt) 
     result += re.findall(regex2,txt)
     result += re.findall(regex3,txt)
@@ -62,9 +85,11 @@ def get_urls (txt):
         result[i] = x.replace("http://","")
         result[i] = result[i].replace("www.","")
         i = i+1
-    return(result)
-
-
+    print("Result")
+    print(result)
+    if(result):
+        return(result[0])
+    else: return "Null"
 
 # def send_message(body,sender,reciver,subject):
 #     SCOPES = ['https://www.googleapis.com/auth/gmail.modify'] 
@@ -136,36 +161,45 @@ def get_urls (txt):
 
 
 
-async def api_vt(urls):  
+async def api_vt(x,action):  
     client = vt.Client(apiKey) 
     print("Analyzing urls")
     result = "" 
-    for x in urls:
-        url_id = vt.url_id(x)
+    print(x)
+    url_id = vt.url_id(x)
+    try:
+        url = client.get_object("/urls/{}",url_id) 
+        if(url.last_analysis_stats.get("malicious") >= 1):
+            result += "action:"
+            result += action
+            result += "-" + x
+            result += "-<b>Maliciosa</b>"
+            result += url.categories[list(url.categories.keys())[0]]
+            result += '<br>'
+        else:
+            result += "action:"
+            result += action
+            result += "-" + x
+            result += "-No maliciosa"
+            result += "<br>"
+    except Exception as e: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
         try:
-            url = client.get_object("/urls/{}",url_id) 
-            if(url.last_analysis_stats.get("malicious") >= 1):
+            a , b = e.args 
+            if(a!="QuotaExceededError"):
+                result += "action:"
+                result += action
                 result += "-" + x
-                result += "-<b>Maliciosa</b>"
-                result += url.categories[list(url.categories.keys())[0]]
-                result += '<br>'
-            else:
-                result += "-" + x
-                result += "-No maliciosa"
+                result += " -Sin catalogar"  
                 result += "<br>"
-        except Exception as e: # Si da error el 99% de los casos significa que simplente la URL no esta catalogada por VT
-            try:
-                a , b = e.args 
-                if(a!="QuotaExceededError"):
-                    result += "-" + x
-                    result += " -Sin catalogar"  
-                    result += "<br>"
-                else:
-                    result += "-" + x
-                    result += "-<b> API Quota Exceeded-</b>"
-                    result += "<br>"
-            except:
-                print("")
+            else:
+                result += "action:"
+                result += action
+                result += "-" + x
+                result += "-<b> API Quota Exceeded-</b>"
+                result += "<br>"
+        except:
+            print("")
+        print("action:"+ action +"url" + x)
                     
             
 
@@ -181,9 +215,16 @@ async def api_vt(urls):
 async def manage_email(email):
     # return "MALA"
     if(is_url_log(email)):
-        urls = get_urls(email)
-        urls = trunk_duplicates(urls)
-        result = await asyncio.gather(api_vt(urls))
+        logs = get_logs(email)
+        result = list()
+        for log in logs:
+            if(is_url_log(log)):
+                urls = get_urls(log)
+                action = re.findall(actionRegex,log)
+                if(urls != "Null" and action):
+                    result.append(await asyncio.gather(api_vt(urls,action[0])))
+                    
+     
         return result
     # send_message(result,"seguridadgestionadatd@gmail.com",email[1],email[2])
     return("not able to analyze ticket")
