@@ -31,10 +31,14 @@ logRegex = r'\bDevice\b(?! Name)(?! ID)(?! Type)'
 actionRegex = 'Action	\s*(\S+)'
 
 def get_logs(allLogs):
+    original = allLogs
     result = re.finditer(logRegex,allLogs)
     indices = [m.start(0) for m in result]
     logs = []
     print ("there are " + str(len(indices)) + "logs")
+    if(len(indices) == 1):
+        logs.append(original)
+        return logs
     for i in range(0,len(indices),1):
         if(i!= 0):
             log = allLogs[indices[i-1]:indices[i]]
@@ -49,14 +53,28 @@ def get_logs(allLogs):
         print("END LOG")
     return logs
 
+def writeCurrentKey(key):
+    apiFile=open('currentApiKey','w')
+    apiFile.write(key)
+def readCurrentKey():
+    apiFile= open('currentApikey','r')
+    return apiFile.readline()
 
-def api_quota_exceeded():
-    if(apiKey == variables['api_key']):
-        apiKey = variables['api_key2']
+
+def api_quota_exceeded(apikey):
+    print("Apikey")
+    print(apikey)
+    if(apikey == variables['api_key']):
+       writeCurrentKey(variables['api_key2'])
     else: 
-        if(apiKey == variables['api_key2']):
-            apiKey = variables['api_key']
-
+        if(apikey == variables['api_key2']):
+            writeCurrentKey(variables['api_key3'])
+        else: 
+            if (apikey == variables['apiKey3']):
+                writeCurrentKey(variables['api_key4'])
+            else:
+                if(apikey == variables['apiKey4']):
+                    writeCurrentKey(variables['api_key'])
 
 def is_url_log(msg):
     result = re.findall(regexTrigger,msg)
@@ -162,7 +180,10 @@ def get_urls (txt):
 
 
 async def api_vt(x,action):  
+    apiKey=readCurrentKey()
+    print(apiKey)
     client = vt.Client(apiKey) 
+    
     print("Analyzing urls")
     result = "" 
     print(x)
@@ -197,6 +218,10 @@ async def api_vt(x,action):
                 result += "-" + x
                 result += "-<b> API Quota Exceeded-</b>"
                 result += "<br>"
+                api_quota_exceeded(apiKey)
+                if(apiKey!=variables['api_key4']):
+                    return await api_vt(x,action)
+                
         except:
             print("")
         print("action:"+ action +"url" + x)
